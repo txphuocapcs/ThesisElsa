@@ -12,7 +12,7 @@ learning_rate = 0.01
 num_epochs=50
 num_examples = 16
 #num_batches_per_epoch = int(num_examples / batch_size)
-num_batches_per_epoch=230
+num_batches_per_epoch=23
 
 
 graph= tf.Graph()
@@ -88,14 +88,22 @@ with graph.as_default():
             num_batches_per_epoch= dataset.total_samples()
             for batch in range(num_batches_per_epoch):
                 train_inputs, train_targets, train_seq_len= dataset.feed()
+                train_inputs1, train_targets1, train_seq_len1 = dataset.feed()
+                train_inputs= (train_inputs, train_inputs1)
+                train_targets= (train_targets, train_targets1)
+                train_seq_len= np.append(train_seq_len, train_seq_len1)
                 #tmp=list()
                 #for target in train_targets:
-                sparserow= data.sparse_tuple_from([train_targets])
+                #sparserow= data.sparse_tuple_from([train_targets[0]])
+                #sparserow1 = data.sparse_tuple_from([train_targets[1]])
+                #sparserow= (sparserow, sparserow1)
+                sparserow= data.sparse_tuple_from(train_targets)
                     #if (tmp==None):
                         #tmp=sparserow
                     #else:
                 #tmp.append(sparserow)
-                feed = {inputs: train_inputs, targets: data.sparse_tuple_from([train_targets]), seq_len: train_seq_len}
+                #feed = {inputs: train_inputs, targets: data.sparse_tuple_from([train_targets]), seq_len: train_seq_len}
+                feed = {inputs: train_inputs, targets: sparserow, seq_len: train_seq_len}
                 costval, __ =session.run([cost, optimizer], feed_dict=feed)
                 epoch_cost+=costval/num_batches_per_epoch
                 print(str(batch*100/ num_batches_per_epoch)+'%' +'    Cost:' + str(epoch_cost)+ '              Total time: '+ str(time.time()-start))

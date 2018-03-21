@@ -146,13 +146,15 @@ class Dataset(object):
         #train_Y = np.zeros((self.batch_size, 256))
         batch_f_count=0
         #load files into batch
-        mfcc=np.load(self.mfcc_file[self.feed_count]).transpose()
-        mfcc=mfcc.reshape(1, mfcc.shape[0], mfcc.shape[1])
+        mfcc=np.load(self.mfcc_file[self.feed_count]).transpose().copy()
+        mfcc.resize(250*20)
+        mfcc=mfcc.reshape([250,20])
+        #mfcc=mfcc.reshape(1, mfcc.shape[0], mfcc.shape[1])
         label= self.label[self.feed_count]
         #label_one_hot=np.zeros(256)
         #label_one_hot[:label.shape[0]]=label
         #train_X[batch_f_count][0][:mfcc.shape[0]]=mfcc
         #train_Y[batch_f_count][:label_one_hot.shape[0]]=label_one_hot
         self.feed_count+=1
-        return mfcc, label, [mfcc.shape[1]]
+        return mfcc, label, [mfcc.shape[0]]
         # print info
