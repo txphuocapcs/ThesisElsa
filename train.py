@@ -7,7 +7,7 @@ num_hidden=512
 num_layers=3
 num_classes = data.voca_size+12
 
-batch_size = 15*40
+batch_size = 16
 learning_rate = 0.01
 num_epochs=50
 num_examples = 16
@@ -79,30 +79,32 @@ with graph.as_default():
         saver = tf.train.Saver()
         tf.global_variables_initializer().run()
         #re-init dataset
+        dataset = data.Dataset(batch_size)
         for curr_epoch in range(num_epochs):
             print('Epoch '+ str(curr_epoch)+':')
             train_cost=train_ler=0
             start=time.time()
-            dataset = data.Dataset(1)
+            dataset.shuffle()
             epoch_cost=0
-            num_batches_per_epoch= dataset.total_samples()
+            num_batches_per_epoch= np.int(np.ceil(dataset.total_samples()/batch_size))
             for batch in range(num_batches_per_epoch):
-                train_inputs, train_targets, train_seq_len= dataset.feed()
-                train_inputs1, train_targets1, train_seq_len1 = dataset.feed()
-                train_inputs= (train_inputs, train_inputs1)
-                train_targets= (train_targets, train_targets1)
-                train_seq_len= np.append(train_seq_len, train_seq_len1)
+                #train_inputs, train_targets, train_seq_len= dataset.feed()
+                #train_inputs1, train_targets1, train_seq_len1 = dataset.feed()
+                #train_inputs= (train_inputs, train_inputs1)
+                #train_targets= (train_targets, train_targets1)
+                #train_seq_len= np.append(train_seq_len, train_seq_len1)
                 #tmp=list()
                 #for target in train_targets:
                 #sparserow= data.sparse_tuple_from([train_targets[0]])
-                #sparserow1 = data.sparse_tuple_from([train_targets[1]])
-                #sparserow= (sparserow, sparserow1)
-                sparserow= data.sparse_tuple_from(train_targets)
+                #sparserow= data.sparse_tuple_from(train_targets)
                     #if (tmp==None):
                         #tmp=sparserow
                     #else:
                 #tmp.append(sparserow)
                 #feed = {inputs: train_inputs, targets: data.sparse_tuple_from([train_targets]), seq_len: train_seq_len}
+
+                train_inputs, train_targets, train_seq_len= dataset.feedBatch()
+                sparserow= data.sparse_tuple_from(train_targets)
                 feed = {inputs: train_inputs, targets: sparserow, seq_len: train_seq_len}
                 costval, __ =session.run([cost, optimizer], feed_dict=feed)
                 epoch_cost+=costval/num_batches_per_epoch

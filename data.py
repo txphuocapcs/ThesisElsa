@@ -138,7 +138,10 @@ class Dataset(object):
         #generate queue of files
         self.queue= np.arange(sum_row)
         #shuffle input queue
+        #np.random.shuffle(self.queue)
+    def shuffle(self):
         np.random.shuffle(self.queue)
+        self.feed_count=0
     def total_samples(self):
         return self.queue.size
     def feed(self):
@@ -158,3 +161,20 @@ class Dataset(object):
         self.feed_count+=1
         return mfcc, label, [mfcc.shape[0]]
         # print info
+    def feedBatch(self):
+        bsCount=0
+        ret_mfcc= None
+        ret_label= None
+        ret_seq_len=None
+        while (bsCount< self.batch_size and self.feed_count<self.queue.size):
+            mfcc,label, seq_len= self.feed()
+            if (ret_mfcc==None):
+                ret_mfcc= [mfcc]
+                ret_label= [label]
+                ret_seq_len= seq_len
+            else:
+                ret_mfcc.append(mfcc)
+                ret_label.append(label)
+                ret_seq_len= np.append(ret_seq_len, seq_len)
+            bsCount+=1
+        return ret_mfcc, ret_label, ret_seq_len
