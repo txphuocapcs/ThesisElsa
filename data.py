@@ -140,6 +140,7 @@ class Dataset(object):
         #shuffle input queue
         #np.random.shuffle(self.queue)
     def shuffle(self):
+        self.queue = np.arange(self.queue.size)
         np.random.shuffle(self.queue)
         self.feed_count=0
     def total_samples(self):
@@ -150,8 +151,8 @@ class Dataset(object):
         batch_f_count=0
         #load files into batch
         mfcc=np.load(self.mfcc_file[self.feed_count]).transpose().copy()
-        mfcc.resize(250*20)
-        mfcc=mfcc.reshape([250,20])
+        mfcc.resize(240*20)
+        mfcc=mfcc.reshape([240,20])
         #mfcc=mfcc.reshape(1, mfcc.shape[0], mfcc.shape[1])
         label= self.label[self.feed_count]
         #label_one_hot=np.zeros(256)

@@ -5,11 +5,11 @@ import data
 num_features=20
 num_hidden=512
 num_layers=3
-num_classes = data.voca_size+12
+num_classes = data.voca_size+1
 
-batch_size = 16
+batch_size = 4
 learning_rate = 0.01
-num_epochs=50
+num_epochs=100
 num_examples = 16
 #num_batches_per_epoch = int(num_examples / batch_size)
 num_batches_per_epoch=23
@@ -19,7 +19,8 @@ graph= tf.Graph()
 with graph.as_default():
     #mfcc is used as features
     inputs= tf.placeholder(tf.float32, [None, None, num_features], name='inpu')
-    #inputs_reshaped= tf.reshape(inputs, [1,-1,num_features, 1])
+    inputs_reshaped= tf.expand_dims(inputs, 3)
+    #inputs_reshaped = tf.transpose(inputs_reshaped, [0, 2, 1,3])
     #Sparpse_placeholder
     targets= tf.sparse_placeholder(tf.int32, name='targ')
 
@@ -29,12 +30,16 @@ with graph.as_default():
     #network definition
 
     #convolution block 1
-    #conv1= tf.layers.conv2d(inputs_reshaped, 120, kernel_size=(3,3), activation=tf.nn.relu)
-    #pool1 = tf.layers.max_pooling2d(inputs=conv1, pool_size=[2, 2], strides=2)
+    conv1= tf.layers.conv2d(inputs_reshaped, 64, kernel_size=(3,3), activation=tf.nn.relu, padding='SAME')
+    pool1 = tf.layers.max_pooling2d(inputs=conv1, pool_size=[2,2], strides=2, padding='SAME', data_format='channels_first')
 
     # convolution block 2
-    #conv2 = tf.layers.conv2d(pool1, 120, kernel_size=[3, 3], activation=tf.nn.relu)
-    #pool2 = tf.layers.max_pooling2d(inputs=conv2, pool_size=[3, 3], strides=3)
+    conv2 = tf.layers.conv2d(pool1, 128, kernel_size=[3, 3], activation=tf.nn.relu, padding='SAME')
+    pool2 = tf.layers.max_pooling2d(inputs=conv2, pool_size=[2,2], strides=3, data_format='channels_first')
+
+    #pool2 = tf.transpose(pool2, [0, 2, 1, 3])
+    rnnInput= tf.reshape(pool1, [batch_size,-1,128])
+
 
 
     #pool2= tf.reshape(pool2, [1,-1, num_features])
@@ -43,11 +48,12 @@ with graph.as_default():
     cell2 = tf.contrib.rnn.GRUCell(num_hidden, activation=tf.tanh)
     cell3 = tf.contrib.rnn.GRUCell(num_hidden, activation=tf.tanh)
     cell4 = tf.contrib.rnn.GRUCell(num_hidden, activation=tf.tanh)
+    cell5 = tf.contrib.rnn.GRUCell(num_hidden, activation=tf.tanh)
     #stack rnn
-    stack= tf.contrib.rnn.MultiRNNCell([cell1]+[cell2]+[cell3]+ [cell4], state_is_tuple=True)
+    stack= tf.contrib.rnn.MultiRNNCell([cell1]+[cell2]+[cell3]+ [cell4]+[cell5], state_is_tuple=True)
 
     #second output= last state, omitted
-    outputs, _ = tf.nn.dynamic_rnn(stack, inputs, seq_len, dtype=tf.float32)
+    outputs, _ = tf.nn.dynamic_rnn(stack, rnnInput, seq_len, dtype=tf.float32)
 
     shape=tf.shape(inputs)
 
@@ -72,7 +78,7 @@ with graph.as_default():
     #ctc loss definition
     loss = tf.nn.ctc_loss(targets, logits, seq_len)
     cost = tf.reduce_mean(loss)
-    optimizer= tf.train.AdamOptimizer().minimize(cost)
+    optimizer= tf.train.AdamOptimizer(0.0001).minimize(cost)
     decoded, log_prob = tf.nn.ctc_beam_search_decoder(logits, seq_len)
 
     with tf.Session(graph=graph) as session:
@@ -108,6 +114,7 @@ with graph.as_default():
                 feed = {inputs: train_inputs, targets: sparserow, seq_len: train_seq_len}
                 costval, __ =session.run([cost, optimizer], feed_dict=feed)
                 epoch_cost+=costval/num_batches_per_epoch
+
                 print(str(batch*100/ num_batches_per_epoch)+'%' +'    Cost:' + str(epoch_cost)+ '              Total time: '+ str(time.time()-start))
             print ('Congrats! Nya!')
             #if (curr_epoch%2==0):

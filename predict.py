@@ -5,8 +5,8 @@ import numpy as np
 
 with tf.Graph().as_default():
     with tf.Session() as session:
-        new_saver = tf.train.import_meta_graph('training/model.121.9.ckpt.meta')
-        new_saver.restore(session, 'training/model.121.9.ckpt')
+        new_saver = tf.train.import_meta_graph('training/model.13.74.ckpt.meta')
+        new_saver.restore(session, 'training/model.13.74.ckpt')
         # predict
         #mfcc = np.load('p225_001.wav.npy').transpose()
         wave,sr=rosa.load('p225_002.wav', mono=True, sr=16000)
