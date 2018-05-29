@@ -1,7 +1,7 @@
 import tensorflow as tf
 import numpy as np
 import time
-import data
+import datapron as data
 num_features=20
 num_hidden=512
 num_layers=3
@@ -124,6 +124,6 @@ with graph.as_default():
             out = decoded
             seqlen = [mfcc.shape[1]]
             d = session.run(decoded[0], feed_dict={inputs: [mfcc], seq_len: seqlen})
-            str_decoded = ''.join([data.index2byte[x] for x in np.asarray(d[1])])
+            str_decoded = ''.join([data.index2byte[x] +' ' for x in np.asarray(d[1])])
             print(str_decoded)
             tmp = 0

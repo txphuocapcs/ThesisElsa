@@ -3,10 +3,11 @@ import pandas as pd
 import glob
 import csv
 import librosa
-import data
+import datapron as data
 import os
 import subprocess
 import pronunciation as pron
+import re
 
 __author__ = 'namju.kim@kakaobrain.com'
 
@@ -31,7 +32,7 @@ def process_vctk(csv_file):
     # read file IDs
     file_ids = []
     for d in [_data_path + 'VCTK-Corpus/txt/p%d/' % uid for uid in df.ID.values]:
-        if (d[-4:-1]!='225'):
+        if (int(d[-4:-1])>232):
             continue
         file_ids.extend([f[-12:-4] for f in sorted(glob.glob(d + '*.txt'))])
 
@@ -55,13 +56,18 @@ def process_vctk(csv_file):
         # get mfcc feature
         mfcc = librosa.feature.mfcc(wave)
 
+        pronlabel= pron.w2pro(open(_data_path + 'VCTK-Corpus/txt/%s/' % f[:4] + f + '.txt').read().split())
+        print (pronlabel)
+        if (pronlabel.size==0):
+            continue
         # get label index
-        label = data.str2index(open(_data_path + 'VCTK-Corpus/txt/%s/' % f[:4] + f + '.txt').read())
+        label = data.str2index(pronlabel)
+        print (label)
 
         # save result ( exclude small mfcc data to prevent ctc loss )
         if len(label) < mfcc.shape[1]:
             # save meta info
-            writer.writerow([fn] + label)
+            writer.writerow(np.append(fn, label))
             # save mfcc
             np.save(target_filename, mfcc, allow_pickle=False)
 

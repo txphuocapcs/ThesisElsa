@@ -13,9 +13,10 @@ _data_path = 'asset/data/'
 #
 
 # index to byte mapping
-index2byte = ['<EMP>', ' ', 'a', 'b', 'c', 'd', 'e', 'f', 'g',
-              'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q',
-              'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+index2byte = ['<EMP>', 'AA', 'AE', 'AH', 'AO', 'AW', 'AY',
+            'B', 'CH', 'D', 'DH', 'EH', 'ER', 'EY', 'F', 'G','HH',
+            'IH', 'IY', 'JH', 'K', 'L', 'M', 'N', 'NG', 'OW', 'OY',
+            'P',  'R', 'S', 'SH', 'T', 'TH', 'UH', 'UW', 'V', 'W', 'Y', 'Z', 'ZH']
 
 # byte to index mapping
 byte2index = {}
@@ -30,14 +31,15 @@ voca_size = len(index2byte)
 def str2index(str_):
 
     # clean white space
-    str_ = ' '.join(str_.split())
+    #str_ = ' '.join(str_.split())
     # remove punctuation and make lower case
-    str_ = str_.translate(string.punctuation).lower()
+    #str_ = str_.translate(string.punctuation).lower()
 
-    res = []
+    res = np.array(0)
     for ch in str_:
         try:
-            res.append(byte2index[ch])
+            ch = ''.join(i for i in ch if not i.isdigit())
+            res=np.append(res, byte2index[ch])
         except KeyError:
             # drop OOV
             pass
