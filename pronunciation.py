@@ -11,6 +11,8 @@ def w2pro(words):
         iword= iword.replace(".", "")
         iword = iword.replace(",", "")
         iword = iword.replace(";", "")
+        iword = iword.replace("?", "")
+        iword = iword.replace("!", "")
         pron=None
         if (len(iword)==0):
             continue
