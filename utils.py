@@ -116,3 +116,19 @@ def pad_sequences(sequences, maxlen=None, dtype=np.float32,
         else:
             raise ValueError('Padding type "%s" not understood' % padding)
     return x, lengths
+
+def _augment_speech(mfcc):
+
+    # random frequency shift ( == speed perturbation effect on MFCC )
+    r = np.random.randint(-2, 2)
+
+    # shifting mfcc
+    mfcc = np.roll(mfcc, r, axis=0)
+
+    # zero padding
+    if r > 0:
+        mfcc[:r, :] = 0
+    elif r < 0:
+        mfcc[r:, :] = 0
+
+    return mfcc

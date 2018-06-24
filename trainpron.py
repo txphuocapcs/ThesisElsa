@@ -35,11 +35,11 @@ with graph.as_default():
     # convolution block 2
     conv2 = tf.layers.conv2d(pool1, 128, kernel_size=[3, 3], activation=tf.nn.relu, padding='SAME')
     norm2 = tf.layers.batch_normalization(inputs=conv2)
-    pool2 = tf.layers.max_pooling2d(inputs=norm2, pool_size=[3, 3], strides=(1, 3), padding='SAME')
+    pool2 = tf.layers.max_pooling2d(inputs=norm2, pool_size=[1, 3], strides=(1, 3), padding='SAME')
     # convolution block 3
     conv3 = tf.layers.conv2d(pool2, 256, kernel_size=[3, 3], activation=tf.nn.relu, padding='SAME')
     norm3 = tf.layers.batch_normalization(inputs=conv3)
-    pool3 = tf.layers.max_pooling2d(inputs=norm3, pool_size=[4, 4], strides=(1, 4), padding='SAME')
+    pool3 = tf.layers.max_pooling2d(inputs=norm3, pool_size=[1, 4], strides=(1, 4), padding='SAME')
 
     # pool2 = tf.transpose(pool2, [0, 2, 1, 3])
     rnnInput = tf.reshape(pool3, [tf.shape(inputs)[0], -1, 256])

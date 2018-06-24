@@ -2,6 +2,7 @@ import numpy as np
 import csv
 import string
 import librosa as rosa
+import utils
 
 _coeff=20
 
@@ -152,7 +153,7 @@ class Dataset(object):
         #train_Y = np.zeros((self.batch_size, 256))
         batch_f_count=0
         #load files into batch
-        mfcc=np.load(self.mfcc_file[self.feed_count]).transpose().copy()
+        mfcc=utils._augment_speech(np.load(self.mfcc_file[self.feed_count])).transpose().copy()
         #mfcc.resize(240*20)
         #mfcc=mfcc.reshape([240,20])
         #mfcc=mfcc.reshape(1, mfcc.shape[0], mfcc.shape[1])
