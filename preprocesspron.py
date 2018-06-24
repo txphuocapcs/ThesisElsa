@@ -54,7 +54,7 @@ def process_vctk(csv_file):
         #wave = wave[::3]
 
         # get mfcc feature
-        mfcc = librosa.feature.mfcc(wave)
+        mfcc = librosa.feature.mfcc(wave, sr=16000)
 
         pronlabel= pron.w2pro(open(_data_path + 'VCTK-Corpus/txt/%s/' % f[:4] + f + '.txt').read().split())
         print (pronlabel)
