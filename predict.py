@@ -5,13 +5,13 @@ import numpy as np
 
 with tf.Graph().as_default():
     with tf.Session() as session:
-        new_saver = tf.train.import_meta_graph('training/model.0.000.ckpt.meta')
-        new_saver.restore(session, 'training/model.0.000.ckpt')
+        new_saver = tf.train.import_meta_graph('training/model.0.549_110.ckpt.meta')
+        new_saver.restore(session, 'training/model.0.549_110.ckpt')
         # predict
         #mfcc = np.load('p225_001.wav.npy').transpose()
-        wave,sr=rosa.load('p230_006_edited.wav', mono=True, sr=16000)
+        wave,sr=rosa.load('data/p374_045.wav', mono=True, sr=16000)
         rosa.output.write_wav('16k',wave,sr=16000)
-        mfcc=rosa.feature.mfcc(wave).transpose()
+        mfcc=rosa.feature.mfcc(wave, sr=16000).transpose()
         mfcc = mfcc.reshape(1, mfcc.shape[0], mfcc.shape[1])
         seqlen = [mfcc.shape[1]]
         graph=tf.get_default_graph()
