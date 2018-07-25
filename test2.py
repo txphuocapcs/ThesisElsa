@@ -17,8 +17,8 @@ total_pron= np.zeros(41)
 with tf.Graph().as_default():
     with tf.Session() as session:
 
-        new_saver = tf.train.import_meta_graph('training/model.0.957_70.ckpt.meta')
-        new_saver.restore(session, 'training/model.0.957_70.ckpt')
+        new_saver = tf.train.import_meta_graph('training/model.0.542.ckpt.meta')
+        new_saver.restore(session, 'training/model.0.542.ckpt')
         graph = tf.get_default_graph()
         inputs = graph.get_tensor_by_name('inpu:0')
         seq_len = graph.get_tensor_by_name('seqlen:0')
@@ -32,7 +32,7 @@ with tf.Graph().as_default():
         # read file IDs
         file_ids = []
         for d in [_data_path + 'VCTK-Corpus/txt/p%d/' % uid for uid in df.ID.values]:
-            if (int(d[-4:-1]) != 374 and int(d[-4:-1])!=376):
+            if (int(d[-4:-1]) <=335):
                 continue
             file_ids.extend([f[-12:-4] for f in sorted(glob.glob(d + '*.txt'))])
 
@@ -71,6 +71,8 @@ with tf.Graph().as_default():
             str_decoded = ''.join([data.index2byte[x]+' ' for x in np.asarray(d[1])])
             print(str_decoded)
             a=align.algn(pronlabel, str_decoded)
+            if (len(a)==0):
+                continue
             print(format_alignment(*a[0]))
             for i in range(len(a[0][0])):
                 tmp1= a[0][0][i]
