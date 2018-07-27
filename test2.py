@@ -17,8 +17,8 @@ total_pron= np.zeros(41)
 with tf.Graph().as_default():
     with tf.Session() as session:
 
-        new_saver = tf.train.import_meta_graph('training/model.0.542.ckpt.meta')
-        new_saver.restore(session, 'training/model.0.542.ckpt')
+        new_saver = tf.train.import_meta_graph('training/model.239.3.ckpt.meta')
+        new_saver.restore(session, 'training/model.239.3.ckpt')
         graph = tf.get_default_graph()
         inputs = graph.get_tensor_by_name('inpu:0')
         seq_len = graph.get_tensor_by_name('seqlen:0')

@@ -5,19 +5,25 @@ dict = nltk.corpus.cmudict.dict()
 
 def w2pro(words):
     init=False
-    print (words)
+    #print (words)
     for word in words:
-        iword= word.lower()
-        iword= iword.replace(".", "")
-        iword = iword.replace(",", "")
-        iword = iword.replace(";", "")
-        iword = iword.replace("?", "")
-        iword = iword.replace("!", "")
-        iword = iword.replace("'", "")
+        if (word!=' '):
+            iword= word.lower()
+            iword= iword.replace(".", "")
+            iword = iword.replace(",", "")
+            iword = iword.replace(";", "")
+            iword = iword.replace("?", "")
+            iword = iword.replace("!", "")
+            iword = iword.replace("'", "")
+            iword = iword.replace("\n", "")
+        else:
+            iword=' '
         pron=None
         if (len(iword)==0):
             continue
-        if (iword in dict):
+        if (iword==' '):
+            pron=' '
+        elif (iword in dict):
             pron= dict[iword][0]
         else:
             return np.array([])
@@ -26,4 +32,6 @@ def w2pro(words):
             init=True
         else:
             ret= np.append(ret, pron)
+    if (ret[-1]!=' '):
+        ret=np.append(ret,' ')
     return ret

@@ -32,7 +32,7 @@ def process_vctk(csv_file):
     # read file IDs
     file_ids = []
     for d in [_data_path + 'VCTK-Corpus/txt/p%d/' % uid for uid in df.ID.values]:
-        if (int(d[-4:-1])>232):
+        if (int(d[-4:-1])>335):
             continue
         file_ids.extend([f[-12:-4] for f in sorted(glob.glob(d + '*.txt'))])
 
@@ -55,14 +55,14 @@ def process_vctk(csv_file):
 
         # get mfcc feature
         mfcc = librosa.feature.mfcc(wave, sr=16000)
-
-        pronlabel= pron.w2pro(open(_data_path + 'VCTK-Corpus/txt/%s/' % f[:4] + f + '.txt').read().split())
-        print (pronlabel)
+        truthlbl= open(_data_path + 'VCTK-Corpus/txt/%s/' % f[:4] + f + '.txt').read()
+        pronlabel= pron.w2pro(re.split(r'(\s+)', truthlbl))
+        #print (pronlabel)
         if (pronlabel.size==0):
             continue
         # get label index
         label = data.str2index(pronlabel)
-        print (label)
+        #print (label)
 
         # save result ( exclude small mfcc data to prevent ctc loss )
         if len(label) < mfcc.shape[1]:
@@ -107,7 +107,17 @@ def process_libri(csv_file, category):
 
                         # label index
                         truthlbl=np.array(field[1:])
-                        pronlabel=pron.w2pro(truthlbl)
+                        truthlblws= ''
+                        init=False
+                        for word in truthlbl:
+                            if (init==False):
+                                truthlblws= np.array([word.copy()])
+                                truthlblws = np.append(truthlblws, ' ')
+                                init=True
+                            else:
+                                truthlblws= np.append(truthlblws, np.array(word))
+                                truthlblws= np.append(truthlblws,' ')
+                        pronlabel=pron.w2pro(truthlblws)
                         labels.append(data.str2index(pronlabel))  # last column is text label
                         tmp=0
 
@@ -133,6 +143,10 @@ def process_libri(csv_file, category):
         # get label index
         #label = data.str2index(pronlabel)
         #print(label)
+        try:
+            a= len(label)
+        except:
+            continue
 
         # save result ( exclude small mfcc data to prevent ctc loss )
         if len(label) < mfcc.shape[1]:
@@ -161,4 +175,6 @@ if not os.path.exists('asset/data/preprocess/mfcc'):
 csv_f = open('asset/data/preprocess/meta/train.csv', 'w')
 process_libri(csv_f, 'train-clean-360')
 process_vctk(csv_f)
+
+
 csv_f.close()
